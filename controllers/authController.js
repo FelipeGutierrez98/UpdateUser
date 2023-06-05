@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 
 const userModel = require("../models/userModel");
+const jwt =require('jsonwebtoken')//trabaja con encabezados
+
 exports.authenticateUser = (req, res) => {
   const {email,password} = req.body;
   userModel
@@ -16,7 +18,11 @@ exports.authenticateUser = (req, res) => {
         }
         else if(result){
             // si la contraseña coincide, el usuario se autentica exitosamente.
-            res.status(200).json({message:"authentication was successful"})
+            const token = jwt.sign( //validacion incio de session
+                {userId:user._id }, "secreto" , //playlout,(cuerpo),secretcase(firma) ,opcion(configuracion de token) =sing
+                {expiresIn:"1h" }
+            )
+            res.status(200).json({message:"authentication was successful",token})
         }
         else{
             // si la contraseña no coincide, se devuelve un mensaje de error.
@@ -28,3 +34,6 @@ exports.authenticateUser = (req, res) => {
 .catch((err)=>res.status(500).json({error:err.message}))
 };
 
+//cors comparit informcaion entre origenes cruzados 
+//cors origin desde el navegador 
+//superviza que acessos tiene la informacio netre dominios 

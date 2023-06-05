@@ -8,12 +8,16 @@ exports.getAllUsers = (req, res) => {
     .catch(err => res.status(500).json({ error: err.message }))
 }
 
-exports.createUser = (req, res) => {
+exports.createUser = async (req, res) => {
   const { username, email, password } = req.body
   const saltRounds = 10
+  const userExist = await userModel.findOne({ email: email })
   bcrypt.hash(password, saltRounds, function (err, hash) {
-    if (err) {
-      res.status(500).json({ error: err.message })
+    if (userExist) {
+      res.status(409).json({ error: `usuario ya existe` })
+      if (err) {
+        res.status(500).json({ error: err.message })
+      }
     } else {
       const newUser = new userModel({
         username,
@@ -28,7 +32,7 @@ exports.createUser = (req, res) => {
     }
   })
 }
-
+/*  */
 exports.updateUser = (req, res) => {
   const { id } = req.params
   const { username, email, password } = req.body
@@ -51,7 +55,6 @@ exports.updateUser = (req, res) => {
     }
   })
 }
-
 
 exports.deleteUser = (req, res) => {
   const { id } = req.params
